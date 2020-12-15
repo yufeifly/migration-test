@@ -1,11 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"github.com/levigross/grequests"
 	"github.com/sirupsen/logrus"
 	"strconv"
 	"sync"
 	"time"
+)
+
+const (
+	src                 = "192.168.1.207"
+	dst                 = "192.168.1.205"
+	defaultProxyPort    = "6788"
+	defaultMigratorPort = "6789"
 )
 
 // MigOpts ...
@@ -27,7 +35,7 @@ func AccessRedis(wg *sync.WaitGroup) {
 		ro := grequests.RequestOptions{
 			Data: data,
 		}
-		url := "http://127.0.0.1:6788/redis/set"
+		url := "http://" + buildAddress(src, defaultProxyPort) + "/redis/set"
 		resp, err := grequests.Post(url, &ro)
 		if err != nil {
 			logrus.Errorf("AccessRedis.Post err: %v", err)
@@ -35,7 +43,7 @@ func AccessRedis(wg *sync.WaitGroup) {
 		}
 
 		logrus.Infof("i: %d, resp: %v", i, resp.String())
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(1 * time.Microsecond)
 	}
 	wg.Done()
 }
@@ -51,7 +59,7 @@ func TriggerMigration(opts MigOpts) {
 	ro := grequests.RequestOptions{
 		Data: data,
 	}
-	url := "http://127.0.0.1:6788/service/migrate"
+	url := "http://" + buildAddress(src, defaultProxyPort) + "/service/migrate"
 	resp, err := grequests.Post(url, &ro)
 	if err != nil {
 		logrus.Errorf("TriggerMigration err: %v", err)
@@ -66,15 +74,19 @@ func main() {
 	go AccessRedis(&wg)
 
 	// sleep for a while, then migrate it
-	time.Sleep(2 * time.Second)
+	time.Sleep(100 * time.Microsecond)
 
 	opts := MigOpts{
 		Service:       "service1",
 		CheckpointID:  "cp-redis",
 		CheckpointDir: "/tmp",
-		Src:           "192.168.227.144:6789",
-		Dst:           "192.168.227.147:6789",
+		Src:           buildAddress(src, defaultMigratorPort),
+		Dst:           buildAddress(dst, defaultMigratorPort),
 	}
 	TriggerMigration(opts)
 	wg.Wait()
+}
+
+func buildAddress(ip, port string) string {
+	return fmt.Sprintf("%s:%s", ip, port)
 }

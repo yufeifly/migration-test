@@ -1,4 +1,4 @@
-module github.com/yufeifly/proxy/test
+module github.com/yufeifly/migration-test
 
 go 1.14
 
