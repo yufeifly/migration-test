@@ -1,31 +1,23 @@
 package migration
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/yufeifly/validator/cli"
+	"github.com/yufeifly/validator/validate"
 )
 
-type verifyOptions struct {
-	mode string
-}
-
 func newVerifyCommand() *cobra.Command {
-	var opts verifyOptions
+	var opts validate.VerifyOptions
 	cmd := &cobra.Command{
 		Use:   "verify",
 		Short: "verify the result of migration",
 		Args:  cli.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runVerify(opts)
+			return validate.VerifyResult(opts)
 		},
 	}
 	flags := cmd.Flags()
-	flags.StringVarP(&opts.mode, "mode", "m", "pc","verify result of migration on server or my own pc")
+	flags.StringVarP(&opts.Addr, "addr", "", "", "target address, format: 192.168.0.1:6666")
+	flags.StringVarP(&opts.Range, "range", "", "", "key range to validate, [start: end) , format: key1:key10000")
 	return cmd
-}
-
-func runVerify(opts verifyOptions) error {
-	fmt.Printf("hello, %v\n", opts.mode)
-	return nil
 }

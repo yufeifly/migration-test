@@ -15,6 +15,7 @@ const (
 	defaultMigratorPort = "6789"
 )
 
+// change the following ips if necessary
 var (
 	src       = "192.168.227.144"
 	dst       = "192.168.227.147"

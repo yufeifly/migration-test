@@ -11,3 +11,8 @@ redis services at the same time concurrently.
 `validate migration test -p pc -n 2` 
 > -p or --platform means run on the server, or my own pc. 
 > -n or --number means the number of services to be migrated concurrently.
+
+## verify migration
+`validate migration verify --addr 127.0.0.1:8888 --range key0:key9999`
+> --addr means the target addr to get kv pairs to validate.
+>-- range means the range of keys
