@@ -1,10 +1,10 @@
 package multipleservices
 
 import (
-	"fmt"
 	"github.com/levigross/grequests"
 	"github.com/sirupsen/logrus"
 	"github.com/yufeifly/validator/cuserr"
+	"github.com/yufeifly/validator/utils"
 	"strconv"
 	"sync"
 	"time"
@@ -39,6 +39,8 @@ type migOpts struct {
 
 // AccessRedis ...
 func accessRedis(service string, wg *sync.WaitGroup) {
+
+	url := "http://" + utils.BuildAddress(src, defaultProxyPort) + "/redis/set"
 	for i := 0; i < 300; i++ {
 		data := make(map[string]string, 3)
 		data["key"] = "name" + strconv.Itoa(i)
@@ -47,7 +49,6 @@ func accessRedis(service string, wg *sync.WaitGroup) {
 		ro := grequests.RequestOptions{
 			Data: data,
 		}
-		url := "http://" + buildAddress(src, defaultProxyPort) + "/redis/set"
 		resp, err := grequests.Post(url, &ro)
 		if err != nil {
 			logrus.Errorf("service: %v, AccessRedis.Post err: %v", service, err)
@@ -72,7 +73,7 @@ func triggerMigration(opts migOpts, wg *sync.WaitGroup) {
 	ro := grequests.RequestOptions{
 		Data: data,
 	}
-	url := "http://" + buildAddress(src, defaultProxyPort) + "/service/migrate"
+	url := "http://" + utils.BuildAddress(src, defaultProxyPort) + "/service/migrate"
 	resp, err := grequests.Post(url, &ro)
 	if err != nil {
 		logrus.Errorf("service: %v, TriggerMigration err: %v", opts.service, err)
@@ -116,16 +117,12 @@ func TestMultipleService(opts TestOptions) error {
 			service:       services[i],
 			checkpointID:  "chkp-" + services[i],
 			checkpointDir: "/tmp",
-			srcAddr:       buildAddress(src, defaultMigratorPort),
-			dstAddr:       buildAddress(dst, defaultMigratorPort),
+			srcAddr:       utils.BuildAddress(src, defaultMigratorPort),
+			dstAddr:       utils.BuildAddress(dst, defaultMigratorPort),
 		}
 		go triggerMigration(opts, &wg)
 	}
 	// wait serviceCount to finish
 	wg.Wait()
 	return nil
-}
-
-func buildAddress(ip, port string) string {
-	return fmt.Sprintf("%s:%s", ip, port)
 }

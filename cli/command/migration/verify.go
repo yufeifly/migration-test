@@ -3,17 +3,17 @@ package migration
 import (
 	"github.com/spf13/cobra"
 	"github.com/yufeifly/validator/cli"
-	"github.com/yufeifly/validator/validate"
+	"github.com/yufeifly/validator/verify"
 )
 
 func newVerifyCommand() *cobra.Command {
-	var opts validate.VerifyOptions
+	var opts verify.CheckOptions
 	cmd := &cobra.Command{
 		Use:   "verify",
 		Short: "verify the result of migration",
 		Args:  cli.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return validate.VerifyResult(opts)
+			return verify.CheckResult(opts)
 		},
 	}
 	flags := cmd.Flags()
