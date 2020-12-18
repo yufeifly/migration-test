@@ -8,10 +8,10 @@ import (
 
 func NewMigrationCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "migration",
+		Use:   "migration",
 		Short: "manage migration",
-		Args: cli.NoArgs,
-		RunE: command.ShowHelp,
+		Args:  cli.NoArgs,
+		RunE:  command.ShowHelp,
 	}
 	cmd.AddCommand(
 		newTestCommand(),

@@ -1,13 +1,14 @@
 package multipleservices
 
 import (
+	"strconv"
+	"sync"
+	"time"
+
 	"github.com/levigross/grequests"
 	"github.com/sirupsen/logrus"
 	"github.com/yufeifly/validator/cuserr"
 	"github.com/yufeifly/validator/utils"
-	"strconv"
-	"sync"
-	"time"
 )
 
 const (
